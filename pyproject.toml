@@ -1,0 +1,23 @@
+[project]
+name = "probe-array-display-script-t8"
+version = "0.1.0"
+description = "Control, display, and logging tools for the SupRISE linear Langmuir probe array with a LabJack T8."
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = [
+    "labjack-ljm",
+    "matplotlib",
+    "numpy",
+    "openpyxl",
+    "pandas",
+    "pyqt5",
+    "pyqtgraph",
+    "pyvisa",
+    "scipy",
+    "seabreeze",
+    "ujson",
+    "xlsxwriter",
+]
+
+[tool.uv]
+package = false
