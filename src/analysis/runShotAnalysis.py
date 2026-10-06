@@ -5,9 +5,24 @@ Created on Tue Jun 17 09:22:05 2025
 @author: NeutralBeams2
 """
 
-import matplotlib.pyplot as plt 
-import numpy as np     #math operations 
-from langmuir_support_functions import analyzeTotal, apply_butter_filter, apply_notch_filters, calcProbeArea, calcParameters, fitDoubletemp, fitExponential, get_resets_1, get_sweepN, obtainFromTe, OMLfit, plot_sweep, smooth
+import matplotlib.pyplot as plt
+import numpy as np
+from paths import SHOT_DATA_DIR
+from .langmuir_support_functions import (
+    OMLfit,
+    analyzeTotal,
+    apply_butter_filter,
+    apply_notch_filters,
+    calcParameters,
+    calcProbeArea,
+    fitDoubletemp,
+    fitExponential,
+    get_resets_1,
+    get_sweepN,
+    obtainFromTe,
+    plot_sweep,
+    smooth,
+)
 #from random import *
 from scipy.signal import savgol_filter
 import pandas as pd
@@ -17,8 +32,8 @@ from scipy.ndimage import gaussian_filter1d
 def runShotAnalysis(shotnumber, start_time=0.2, end_time=0.2, power_sweep = False, display_amount=0, show_plots = False, ask_user = False):
     
     ############ Determine which shot and which gas is used ###################
-    base_dir = fr"C:\Users\NeutralBeams2\Documents\MACE EXPERIMENT\CODE\Probe_Array_Display_Script_T8\Data\SHOT_DATA\{shotnumber}"
-    df = pd.read_csv(fr'{base_dir}\RAW_DATA\LAB_JACK_INPUT.csv')
+    base_dir = SHOT_DATA_DIR / str(shotnumber)
+    df = pd.read_csv(base_dir / "RAW_DATA" / "LAB_JACK_INPUT.csv")
     #df_RF = pd.read_csv(fr'{base_dir}\RAW_DATA\RF_SOURCE_OUTPUT.csv')
     GAS=39.948  # Atomic mass of gas
     

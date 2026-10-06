@@ -10,7 +10,14 @@ import pickle as p
 import pandas as pd
 import csv
 import ujson as json
-import openpyxl 
+import openpyxl
+
+from paths import DATA_DIR, DATA_LOGS_DIR, MULTI_ANALYSIS_DIR, SHOT_DATA_DIR
+
+
+def _session_dir(base: os.PathLike, name: str) -> str:
+    return os.fspath(base / name) + os.sep
+
 
 class ControlDataManager:
     """
@@ -38,8 +45,10 @@ class ControlDataManager:
     """
     
     def __init__(self):
-        self.data_filepath = "C:\\Users\\NeutralBeams2\\Documents\\MACE EXPERIMENT\\CODE\\Probe_Array_Display_Script_T8\\Data\\SHOT_DATA\\"
-        self.XL_filepath = "C:\\Users\\NeutralBeams2\\Documents\\MACE EXPERIMENT\\CODE\\Probe_Array_Display_Script_T8\\Data\\"
+        SHOT_DATA_DIR.mkdir(parents=True, exist_ok=True)
+        DATA_DIR.mkdir(parents=True, exist_ok=True)
+        self.data_filepath = os.fspath(SHOT_DATA_DIR) + os.sep
+        self.XL_filepath = os.fspath(DATA_DIR) + os.sep
        
 
     def writeXL(self,setting_data):
@@ -138,9 +147,15 @@ class ControlDataManager:
                 session_name = "00001"
             elif check_duplicate is False: # set shot name to one above the highest shot number in the directory
                 rows = []
-                for i in np.arange(0, len(dirs)):
-                    rows.append(int(dirs[i]))
-                session_name = "{:05d}".format(max(rows)+1)
+                for name in dirs:
+                    try:
+                        rows.append(int(name))
+                    except ValueError:
+                        continue
+                if not rows:
+                    session_name = "00001"
+                else:
+                    session_name = "{:05d}".format(max(rows) + 1)
             else:
                 return ""
             return session_name
@@ -197,13 +212,12 @@ class ControlDataManager:
         Returns:
             session_name (str): name of the logging session, empty string if creating directory failed
         """
-        session_dir = os.path.dirname(os.path.realpath(__file__)) + "\\DATA_LOGS\\" + session_name + "\\"
+        DATA_LOGS_DIR.mkdir(parents=True, exist_ok=True)
+        session_dir = _session_dir(DATA_LOGS_DIR, session_name)
         if os.path.exists(session_dir):
             return ""
-        
-        self._session_dir = session_dir
-             
 
+        self._session_dir = session_dir
         os.mkdir(self._session_dir)
         
         session_name = self.generateShotName(session_name)
@@ -320,11 +334,11 @@ class AnalysisDataManager:
                 processed before.
         """
         if session_type == "SHOT" and session_name is not None:
-            self._session_dir =  os.path.dirname(os.path.realpath(__file__)) + "\\SHOT_DATA\\" + session_name + "\\"
+            self._session_dir = _session_dir(SHOT_DATA_DIR, session_name)
         elif session_type == "LOG" and session_name is not None:
-            self._session_dir = os.path.dirname(os.path.realpath(__file__)) + "\\DATA_LOGS\\" + session_name + "\\"
+            self._session_dir = _session_dir(DATA_LOGS_DIR, session_name)
         elif session_type == "MULTI" and session_name is not None:
-            self._session_dir = os.path.dirname(os.path.realpath(__file__)) + "\\MULTI_ANALYSIS\\" + session_name + ".p"
+            self._session_dir = os.fspath(MULTI_ANALYSIS_DIR / f"{session_name}.p")
         else:
             self._session_dir = None
             

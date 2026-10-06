@@ -7,7 +7,7 @@ from scipy.interpolate import griddata
 from scipy.signal import butter, filtfilt, iirnotch, sosfilt, sosfiltfilt, tf2sos
 from scipy.ndimage import gaussian_filter1d
 from scipy.stats import linregress
-import callibration
+from . import callibration
 import warnings
 
 

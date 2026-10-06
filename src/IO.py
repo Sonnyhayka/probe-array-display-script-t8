@@ -11,10 +11,7 @@ import IODevice as io
 import Utils as u
 import threading
 from PyQt5.QtCore import pyqtSignal, QObject
-import sys
 
-sys.path.insert(0, "..\\..\\DATA")
-gasonoff=5
 from DataManager import ControlDataManager
 
 class IO(QObject): 
@@ -140,7 +137,8 @@ class IO(QObject):
         
         self.shotname = data_manager.createShot(shot_number)
         
-        if(self.shotname is None):
+        if self.shotname is None:
+            self.update("Could not create shot directory.", error=True)
             return False
             
         for device in self.devices:
@@ -203,16 +201,19 @@ class IO(QObject):
         If it is a duplicate, it returns False to stop logging. If it isn't it starts logging with that name.
         """
         
-        if shot_data['SHOT_NUMBER'] == "":
-             self.start_log()
-        else:
-            if self.checkShotDuplicate(shot_data['SHOT_NUMBER']):
+        if shot_data["SHOT_NUMBER"] == "":
+            if not self.start_log():
                 return False
-            shot_name = self.start_log(shot_data["SHOT_NUMBER"])
+        else:
+            if self.checkShotDuplicate(shot_data["SHOT_NUMBER"]):
+                return False
+            if not self.start_log(shot_data["SHOT_NUMBER"]):
+                return False
 
-        self.addSettings({'RESISTANCE': shot_data["RESISTANCE"], "COMMENT": shot_data["COMMENT"]})
-        
-        return True 
+        self.addSettings(
+            {"RESISTANCE": shot_data["RESISTANCE"], "COMMENT": shot_data["COMMENT"]}
+        )
+        return True
     
     def stopProbeLogging(self):
         "Stops the probe logging."

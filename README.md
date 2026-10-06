@@ -21,25 +21,31 @@ pip install pyqt5 pyqtgraph numpy scipy labjack-ljm seabreeze openpyxl ujson pan
 ```
 .
 ├── main.py              Entry point — launches the GUI
-├── GUImain.py           Qt application and main window
-├── GUIcontrol.py        Left panel: probe control widgets (resistance, shot number, logging)
-├── GUIdisplay.py        Right panel: 6 live pyqtgraph plots of Langmuir IV data
-├── GUIthreads.py        Background thread that polls IO for plot data at ~10 FPS
-├── IO.py                Coordinates LabJack acquisition, data manager, and GUI signals
-├── IODevice.py          Device abstraction layer (Device, IDevice, ODevice, LabJack)
-├── LJ_DAQ.py            Low-level LabJack LJM port wrapper
-├── DataManager.py       Shot directory creation, CSV logging, Excel summary, JSON settings
-├── Utils.py             Signal processing and numerical utilities
-├── mux_scan.py          Standalone ADG726 MUX scanner (independent of the main GUI)
+├── mux_scan.py          Launcher for the standalone MUX scanner
+├── src/                 Application and analysis source code
+│   ├── paths.py         Project-relative paths to Data/ (no machine-specific paths)
+│   ├── GUImain.py       Qt application and main window
+│   ├── GUIcontrol.py    Left panel: probe control widgets
+│   ├── GUIdisplay.py    Right panel: live pyqtgraph IV plots
+│   ├── GUIthreads.py    Background plot polling thread
+│   ├── IO.py            LabJack acquisition, data manager, GUI signals
+│   ├── IODevice.py      Device abstraction (LabJack, etc.)
+│   ├── LJ_DAQ.py        Low-level LabJack LJM port wrapper
+│   ├── DataManager.py   Shot directories, CSV logging, Excel summary, settings JSON
+│   ├── Utils.py         Signal processing utilities
+│   ├── mux_scan.py      MUX scanner implementation
+│   └── analysis/        Offline Langmuir analysis scripts
+│       ├── runShotAnalysis.py
+│       ├── langmuir_support_functions.py
+│       └── callibration.py
 └── Data/
     ├── supRISEshots.xlsx     Excel log of all recorded shots
-    ├── SHOT_DATA/            One subdirectory per shot
-    │   └── {SHOT_NUM}/
-    │       ├── settings.json
-    │       └── RAW_DATA/
-    │           ├── LAB_JACK_INPUT.csv
-    │           └── LAB_JACK_OUTPUT.csv
-    └── langmuir_support_functions.py
+    └── SHOT_DATA/            One subdirectory per shot
+        └── {SHOT_NUM}/
+            ├── settings.json
+            └── RAW_DATA/
+                ├── LAB_JACK_INPUT.csv
+                └── LAB_JACK_OUTPUT.csv
 ```
 
 ---
@@ -96,12 +102,7 @@ Data/SHOT_DATA/{SHOT_NUM}/
 
 `Data/supRISEshots.xlsx` is updated with one row per shot containing: shot number, date, time, comment, resistance, log duration, start time, and end time.
 
-Data paths are hardcoded in `DataManager.py`:
-```python
-self.data_filepath = "C:\\Users\\NeutralBeams2\\Documents\\...\\Data\\SHOT_DATA\\"
-self.XL_filepath   = "C:\\Users\\NeutralBeams2\\Documents\\...\\Data\\"
-```
-Update both lines to match the machine's directory before running.
+Shot data and the Excel log live under `Data/` at the project root. Paths are resolved in `src/paths.py` relative to the repository, so no per-machine path edits are required.
 
 ---
 
